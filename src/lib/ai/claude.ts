@@ -47,7 +47,7 @@ function getOpenRouter(): OpenAI {
       apiKey: key,
       defaultHeaders: {
         "HTTP-Referer": "https://github.com/sai-sridhar-repo-07/Auto-Apply-Jobs",
-        "X-Title": "AutoApply",
+        "X-Title": "JobCraft",
       },
     });
   }

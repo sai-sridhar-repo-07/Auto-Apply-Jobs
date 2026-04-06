@@ -1,4 +1,4 @@
-# AutoApply — AI-Powered Job Application Platform
+# JobCraft — AI-Powered Job Application Platform
 
 > Your personal AI job search co-pilot. Evaluate jobs, auto-fill applications, track your pipeline, schedule follow-ups, prep for interviews, and negotiate offers — all from one local web app.
 

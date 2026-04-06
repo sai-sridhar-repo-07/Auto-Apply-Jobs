@@ -1,4 +1,4 @@
--- AutoApply Database Schema
+-- JobCraft Database Schema
 
 PRAGMA journal_mode=WAL;
 PRAGMA foreign_keys=ON;

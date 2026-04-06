@@ -32,7 +32,7 @@ export function Sidebar() {
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="font-bold text-white text-base leading-tight">AutoApply</p>
+            <p className="font-bold text-white text-base leading-tight">JobCraft</p>
             <p className="text-xs leading-tight" style={{ color: "#475569" }}>AI Job Platform</p>
           </div>
         </div>
