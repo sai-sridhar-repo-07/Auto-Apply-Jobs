@@ -136,7 +136,7 @@ export function JobsContent() {
                           </Badge>
                         )}
                         {job.status && (
-                          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusColors[job.status] ?? "bg-muted text-muted-foreground"}`}>
+                          <span className={`text-sm px-3 py-1 rounded-full font-semibold ${statusColors[job.status] ?? "bg-muted text-muted-foreground"}`}>
                             {job.status}
                           </span>
                         )}

@@ -144,7 +144,7 @@ export function NegotiateContent() {
                         <p className="text-sm text-muted-foreground mt-0.5">{offer.company}</p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className={`text-sm px-3 py-1 rounded-full font-medium ${decisionColors[offer.decision] ?? ""}`}>
+                        <span className={`text-base px-4 py-1.5 rounded-full font-bold ${decisionColors[offer.decision] ?? ""}`}>
                           {offer.decision}
                         </span>
                         <button onClick={() => setExpanded(expanded === offer.id ? null : offer.id)}>

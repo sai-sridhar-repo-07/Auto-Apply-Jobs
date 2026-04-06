@@ -92,7 +92,7 @@ export function ApplicationsContent() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {(["evaluated", "applied", "interview", "offer"] as ApplicationStatus[]).map((status) => (
               <div key={status} className="space-y-3">
-                <div className={`text-sm font-semibold px-3 py-1.5 rounded-full w-fit border ${statusColors[status]}`}>
+                <div className={`text-base font-bold px-4 py-2 rounded-full w-fit border ${statusColors[status]}`}>
                   {status} ({grouped[status]?.length ?? 0})
                 </div>
                 <div className="space-y-2">
