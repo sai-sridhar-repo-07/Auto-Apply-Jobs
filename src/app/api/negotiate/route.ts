@@ -13,7 +13,7 @@ export async function GET() {
 }
 
 const createSchema = z.object({
-  application_id: z.number().nullable().default(null),
+  application_id: z.number().nullable().default(null).transform(v => (v === 0 ? null : v)),
   company: z.string(),
   role: z.string(),
   base_salary: z.number(),
