@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AutoApply — user data (never commit)
+/data/
+/config/profile.yml
+/config/portals.yml
+
+# Keep example configs
+!config/*.example.yml

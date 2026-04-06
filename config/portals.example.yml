@@ -1,0 +1,80 @@
+# ─── AutoApply — Job Portals & Company Tracker ────────────────────────────────
+# Copy this file to config/portals.yml and customize.
+# This drives the job discovery scanner.
+
+# Keywords to include/exclude when filtering discovered jobs
+positive_keywords:
+  - senior
+  - staff
+  - principal
+  - lead
+  - engineer
+  - manager
+
+negative_keywords:
+  - junior
+  - intern
+  - "entry level"
+  - java
+  - ".net"
+  - blockchain
+  - web3
+
+# Companies to track — add as many as you want
+companies:
+  # Big Tech
+  - name: "Stripe"
+    careers_url: "https://stripe.com/jobs"
+    greenhouse_id: "stripe"
+    category: "fintech"
+
+  - name: "Vercel"
+    careers_url: "https://vercel.com/careers"
+    greenhouse_id: "vercel"
+    category: "devtools"
+
+  - name: "Linear"
+    careers_url: "https://linear.app/careers"
+    category: "devtools"
+
+  - name: "Notion"
+    careers_url: "https://www.notion.so/careers"
+    greenhouse_id: "notion"
+    category: "productivity"
+
+  - name: "Figma"
+    careers_url: "https://www.figma.com/careers"
+    greenhouse_id: "figma"
+    category: "design"
+
+  - name: "Retool"
+    careers_url: "https://retool.com/careers"
+    greenhouse_id: "retool"
+    category: "devtools"
+
+  - name: "Airtable"
+    careers_url: "https://airtable.com/careers"
+    greenhouse_id: "airtable"
+    category: "productivity"
+
+  - name: "HashiCorp"
+    careers_url: "https://www.hashicorp.com/jobs"
+    greenhouse_id: "hashicorp"
+    category: "infrastructure"
+
+  - name: "Datadog"
+    careers_url: "https://www.datadoghq.com/careers"
+    greenhouse_id: "datadog"
+    category: "observability"
+
+  - name: "PlanetScale"
+    careers_url: "https://planetscale.com/careers"
+    category: "infrastructure"
+
+# Job boards to search (site: filtered queries will be constructed automatically)
+job_boards:
+  - "linkedin.com/jobs"
+  - "greenhouse.io"
+  - "lever.co"
+  - "jobs.ashbyhq.com"
+  - "wellfound.com"

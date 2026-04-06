@@ -1,0 +1,70 @@
+# ─── AutoApply — User Profile ─────────────────────────────────────────────────
+# Copy this file to config/profile.yml and fill in your details.
+# This file drives ALL AI evaluation, CV personalization, and scoring.
+
+# Personal info
+name: "Jane Smith"
+email: "jane@example.com"
+phone: "+1 555 000 0000"
+linkedin: "https://linkedin.com/in/janesmith"
+github: "https://github.com/janesmith"
+website: "https://janesmith.dev"
+location: "San Francisco, CA"
+timezone: "America/Los_Angeles"
+visa_sponsorship: false
+
+# What roles you're targeting (used to filter and score jobs)
+target_roles:
+  - "Senior Software Engineer"
+  - "Staff Engineer"
+  - "Engineering Manager"
+
+# Role archetypes — define the lenses through which your profile is evaluated.
+# Each archetype gets equal weight. Customize to match your actual goals.
+archetypes:
+  - name: "Backend Engineer"
+    keywords: ["backend", "api", "distributed systems", "microservices", "golang", "python"]
+    description: "Designing and building high-scale backend services and APIs"
+
+  - name: "Platform / Infrastructure"
+    keywords: ["platform", "devops", "kubernetes", "terraform", "ci/cd", "reliability"]
+    description: "Building internal platforms, developer tooling, and cloud infrastructure"
+
+  - name: "Engineering Manager"
+    keywords: ["engineering manager", "em", "team lead", "people management", "roadmap"]
+    description: "Leading engineering teams, setting technical direction, growing engineers"
+
+  - name: "Full Stack Engineer"
+    keywords: ["full stack", "react", "nextjs", "typescript", "node", "frontend"]
+    description: "End-to-end product engineering across frontend and backend"
+
+# Your professional narrative
+headline: "Senior Software Engineer with 7 years building high-scale distributed systems"
+summary: >
+  I build reliable, high-throughput backend systems and love the intersection of
+  developer experience and platform engineering. Currently looking for a senior IC or
+  EM role at a product-led company where I can drive technical strategy.
+
+# Proof points — quantified achievements (pulled into CV and evaluation blocks)
+proof_points:
+  - "Reduced API p99 latency by 60% through query optimization and caching strategy"
+  - "Led migration of monolith to microservices, cutting deploy time from 45min to 8min"
+  - "Grew and mentored a team of 6 engineers across 2 time zones"
+  - "Built real-time data pipeline processing 500K events/sec with <10ms lag"
+
+# Superpowers (used for cover letter and CV personalization)
+superpowers:
+  - "Systems thinking — I see the full picture before writing a line of code"
+  - "Async communication — clear, concise writing that unblocks remote teams"
+  - "Hiring — I've built two teams from scratch with <5% attrition"
+
+# Compensation expectations
+comp_min: 180000
+comp_max: 250000
+currency: "USD"
+equity: true  # are you open to equity-heavy offers?
+
+# Location / remote preferences
+remote_preference: "hybrid"  # remote | hybrid | onsite | any
+willing_to_relocate: false
+preferred_cities: ["San Francisco", "New York", "Austin", "Remote"]

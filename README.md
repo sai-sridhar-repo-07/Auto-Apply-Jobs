@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AutoApply — AI-Powered Job Application Platform
+
+A full-stack web app that automates and supercharges your job search using Claude AI.
+
+## Features
+
+- **Job Discovery** — Add job URLs, paste descriptions, and get instant AI evaluations
+- **6-Block AI Evaluation** — Gap analysis, seniority positioning, comp research, CV suggestions, and interview prep per job
+- **Application Pipeline** — Kanban + table tracker with one-click status updates
+- **Follow-up Engine** — Auto-scheduled day 7/14/21 follow-up emails, AI-drafted
+- **Interview Prep Coach** — Mock Q&A sessions, company research briefs, STAR story guide
+- **Offer Negotiation Tracker** — Log offers, market benchmarking, AI counter-offer and competing-offer scripts
+
+## Stack
+
+- **Frontend/Backend**: Next.js 16 + TypeScript + Tailwind CSS + shadcn/ui
+- **Database**: SQLite (better-sqlite3) — local, fast, no server needed
+- **AI**: Claude API (claude-sonnet-4-6) via Anthropic SDK
+- **Automation**: Playwright
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone and install
+
+```bash
+git clone https://github.com/sai-sridhar-repo-07/Auto-Apply-Jobs.git
+cd Auto-Apply-Jobs
+npm install
+```
+
+### 2. Configure environment
+
+```bash
+cp .env.local.example .env.local
+# Edit .env.local and add your ANTHROPIC_API_KEY
+# Get one at https://console.anthropic.com
+```
+
+### 3. Set up your profile
+
+```bash
+cp config/profile.example.yml config/profile.yml
+# Edit config/profile.yml with your details, target roles, and compensation range
+
+cp config/portals.example.yml config/portals.yml
+# Edit config/portals.yml to add the companies you want to track
+```
+
+### 4. Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Usage
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Settings** — Read the setup guide and confirm your profile is configured
+2. **Discover Jobs** — Paste a job URL and description, click Evaluate
+3. **Applications** — Move jobs through the pipeline as you apply and hear back
+4. **Follow-ups** — When you mark a job as "applied", day 7/14/21 reminders are auto-scheduled
+5. **Interview Prep** — Generate mock Q&A for any company/role/round
+6. **Negotiations** — Log offers to get AI-generated negotiation scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Configuration
 
-## Learn More
+All user data lives in `config/` (git-ignored, never committed):
 
-To learn more about Next.js, take a look at the following resources:
+| File | Purpose |
+|------|---------|
+| `config/profile.yml` | Your name, target roles, archetypes, proof points, comp range |
+| `config/portals.yml` | Companies to track, keywords to filter |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See the `*.example.yml` files for full documentation of each field.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
