@@ -105,7 +105,7 @@ export async function scrapeApplicationForm(url: string): Promise<ScrapedForm> {
         if (seen.has(key) || !label || label.length < 2) return;
         seen.add(key);
         results.push({
-          id: `field_${results.length}`,
+          id: `field_${Date.now()}_${results.length}`,
           label,
           type: mapType(input),
           placeholder: input.placeholder || undefined,
@@ -121,7 +121,7 @@ export async function scrapeApplicationForm(url: string): Promise<ScrapedForm> {
         if (seen.has(key) || !label || label.length < 2) return;
         seen.add(key);
         results.push({
-          id: `field_${results.length}`,
+          id: `field_${Date.now()}_${results.length}`,
           label,
           type: "textarea",
           placeholder: el.placeholder || undefined,
@@ -140,7 +140,7 @@ export async function scrapeApplicationForm(url: string): Promise<ScrapedForm> {
           .map((o) => o.text.trim())
           .filter((o) => o && o !== "Select..." && o !== "-- Select --");
         results.push({
-          id: `field_${results.length}`,
+          id: `field_${Date.now()}_${results.length}`,
           label,
           type: "select",
           options,

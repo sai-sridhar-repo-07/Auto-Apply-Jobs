@@ -115,7 +115,7 @@ export function InterviewContent() {
             <div className="space-y-3">
               <h3 className="text-base font-semibold">Interview Questions ({result.questions.length})</h3>
               {result.questions.map((q, i) => (
-                <Card key={i}>
+                <Card key={`q-${i}-${q.question.slice(0, 20)}`}>
                   <CardContent className="py-4 px-5">
                     <div className="flex items-start justify-between gap-4 cursor-pointer"
                       onClick={() => setExpanded(expanded === i ? null : i)}>
