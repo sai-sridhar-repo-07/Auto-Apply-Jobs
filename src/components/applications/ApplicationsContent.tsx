@@ -1,45 +1,42 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Building2, MapPin, ExternalLink } from "lucide-react";
+import { Building2, MapPin, ExternalLink, Loader2, ChevronDown } from "lucide-react";
 import type { ApplicationStatus } from "@/types";
 
-const STATUSES: ApplicationStatus[] = [
-  "evaluated", "applied", "responded", "interview", "offer", "rejected", "discarded", "skip",
-];
+const STATUSES: ApplicationStatus[] = ["evaluated","applied","responded","interview","offer","rejected","discarded","skip"];
 
-const statusColors: Record<string, string> = {
-  evaluated: "bg-purple-100 text-purple-700 border-purple-200",
-  applied: "bg-blue-100 text-blue-700 border-blue-200",
-  responded: "bg-cyan-100 text-cyan-700 border-cyan-200",
-  interview: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  offer: "bg-green-100 text-green-700 border-green-200",
-  rejected: "bg-red-100 text-red-700 border-red-200",
-  discarded: "bg-gray-100 text-gray-500 border-gray-200",
-  skip: "bg-gray-100 text-gray-400 border-gray-200",
+const statusStyle: Record<string, { bg: string; text: string; dot: string }> = {
+  evaluated: { bg: "bg-violet-50", text: "text-violet-700", dot: "bg-violet-400" },
+  applied:   { bg: "bg-blue-50",   text: "text-blue-700",   dot: "bg-blue-400" },
+  responded: { bg: "bg-cyan-50",   text: "text-cyan-700",   dot: "bg-cyan-400" },
+  interview: { bg: "bg-amber-50",  text: "text-amber-700",  dot: "bg-amber-400" },
+  offer:     { bg: "bg-emerald-50",text: "text-emerald-700",dot: "bg-emerald-400" },
+  rejected:  { bg: "bg-red-50",    text: "text-red-700",    dot: "bg-red-400" },
+  discarded: { bg: "bg-slate-50",  text: "text-slate-500",  dot: "bg-slate-300" },
+  skip:      { bg: "bg-slate-50",  text: "text-slate-400",  dot: "bg-slate-200" },
 };
 
+const pipelineCols: ApplicationStatus[] = ["evaluated","applied","interview","offer"];
+
 interface AppRow {
-  id: number;
-  job_id: number;
-  status: ApplicationStatus;
-  title: string;
-  company: string;
-  url: string;
-  remote: string;
-  location: string;
-  score: number;
-  grade: string;
-  archetype: string;
-  summary: string;
-  applied_at: string;
-  notes: string;
-  updated_at: string;
+  id: number; job_id: number; status: ApplicationStatus;
+  title: string; company: string; url: string; remote: string; location: string;
+  score: number; grade: string; archetype: string; summary: string;
+  applied_at: string; notes: string; updated_at: string;
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const s = statusStyle[status] ?? { bg: "bg-slate-50", text: "text-slate-500", dot: "bg-slate-300" };
+  return (
+    <span className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1 rounded-full ${s.bg} ${s.text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+      {status}
+    </span>
+  );
 }
 
 export function ApplicationsContent() {
@@ -48,144 +45,147 @@ export function ApplicationsContent() {
   const [expanded, setExpanded] = useState<number | null>(null);
 
   const load = () => {
-    fetch("/api/applications")
-      .then((r) => r.json())
-      .then((d) => { if (d.success) setApps(d.data); })
-      .finally(() => setLoading(false));
+    fetch("/api/applications").then(r => r.json()).then(d => { if (d.success) setApps(d.data); }).finally(() => setLoading(false));
   };
-
   useEffect(() => { load(); }, []);
 
   const updateStatus = async (id: number, status: ApplicationStatus) => {
-    const res = await fetch("/api/applications", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
-    });
+    const res = await fetch("/api/applications", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) });
     const d = await res.json();
     if (d.success) {
-      toast.success(`Status updated to ${status}`);
-      if (status === "applied") toast.info("Follow-up reminders scheduled for day 7, 14, and 21");
-      setApps((prev) => prev.map((a) => a.id === id ? { ...a, status } : a));
-    } else {
-      toast.error(d.error ?? "Failed to update");
-    }
+      toast.success(`Moved to ${status}`);
+      if (status === "applied") toast.info("Follow-up emails scheduled for day 7, 14, 21");
+      setApps(prev => prev.map(a => a.id === id ? { ...a, status } : a));
+    } else toast.error(d.error ?? "Update failed");
   };
 
-  const grouped = STATUSES.reduce((acc, s) => {
-    acc[s] = apps.filter((a) => a.status === s);
-    return acc;
-  }, {} as Record<string, AppRow[]>);
+  const grouped = STATUSES.reduce((acc, s) => { acc[s] = apps.filter(a => a.status === s); return acc; }, {} as Record<string, AppRow[]>);
+
+  if (loading) return (
+    <div className="flex items-center justify-center py-20">
+      <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
+    </div>
+  );
 
   return (
     <Tabs defaultValue="pipeline">
-      <TabsList className="mb-5">
-        <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
-        <TabsTrigger value="table">Table View</TabsTrigger>
+      <TabsList className="mb-6 bg-white border border-slate-200 shadow-sm p-1 rounded-xl">
+        <TabsTrigger value="pipeline" className="rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-sm">Pipeline</TabsTrigger>
+        <TabsTrigger value="table" className="rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-sm">All Applications</TabsTrigger>
       </TabsList>
 
-      {/* ── Pipeline ── */}
+      {/* Pipeline */}
       <TabsContent value="pipeline">
-        {loading ? (
-          <p className="text-muted-foreground">Loading...</p>
+        {apps.length === 0 ? (
+          <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 py-16 text-center">
+            <p className="text-slate-400">No applications yet. Evaluate a job first.</p>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {(["evaluated", "applied", "interview", "offer"] as ApplicationStatus[]).map((status) => (
-              <div key={status} className="space-y-3">
-                <div className={`text-base font-bold px-4 py-2 rounded-full w-fit border ${statusColors[status]}`}>
-                  {status} ({grouped[status]?.length ?? 0})
-                </div>
-                <div className="space-y-2">
-                  {(grouped[status] ?? []).map((app) => (
-                    <Card key={app.id} className="hover:shadow-sm transition-shadow cursor-pointer"
-                      onClick={() => setExpanded(expanded === app.id ? null : app.id)}>
-                      <CardContent className="p-4 space-y-2">
-                        <div className="font-medium text-sm leading-snug">{app.title ?? "Untitled"}</div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-1.5">
-                          <Building2 className="w-3.5 h-3.5" />{app.company}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {pipelineCols.map((status) => {
+              const s = statusStyle[status];
+              const items = grouped[status] ?? [];
+              return (
+                <div key={status} className="space-y-3">
+                  <div className={`flex items-center justify-between px-3 py-2 rounded-xl ${s.bg}`}>
+                    <span className={`text-sm font-bold ${s.text} flex items-center gap-1.5`}>
+                      <span className={`w-2 h-2 rounded-full ${s.dot}`} />{status}
+                    </span>
+                    <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-lg bg-white ${s.text}`}>{items.length}</span>
+                  </div>
+                  {items.map(app => (
+                    <div key={app.id} onClick={() => setExpanded(expanded === app.id ? null : app.id)}
+                      className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 cursor-pointer hover:border-indigo-100 hover:shadow-md transition-all">
+                      <p className="font-semibold text-sm text-slate-900 leading-snug mb-1">{app.title ?? "Untitled"}</p>
+                      <p className="text-sm text-slate-400 flex items-center gap-1"><Building2 className="w-3 h-3" />{app.company}</p>
+                      {app.grade && (
+                        <span className="inline-block mt-2 text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg">
+                          {app.grade} · {app.score}/10
+                        </span>
+                      )}
+                      {expanded === app.id && (
+                        <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
+                          {app.summary && <p className="text-xs text-slate-500 leading-relaxed">{app.summary}</p>}
+                          <Select value={app.status} onValueChange={(v) => v && updateStatus(app.id, v as ApplicationStatus)}>
+                            <SelectTrigger className="h-8 text-sm rounded-lg border-slate-200">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {STATUSES.map(s => <SelectItem key={s} value={s} className="text-sm">{s}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                          <a href={app.url} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 font-medium">
+                            <ExternalLink className="w-3 h-3" />View job posting
+                          </a>
                         </div>
-                        {app.grade && (
-                          <Badge variant="outline" className="text-xs">{app.grade} · {app.score}/10</Badge>
-                        )}
-                        {expanded === app.id && (
-                          <div className="mt-3 pt-3 border-t border-border space-y-3">
-                            <p className="text-sm text-muted-foreground leading-relaxed">{app.summary}</p>
-                            <Select value={app.status} onValueChange={(v) => v && updateStatus(app.id, v as ApplicationStatus)}>
-                              <SelectTrigger className="h-8 text-sm">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {STATUSES.map((s) => (
-                                  <SelectItem key={s} value={s} className="text-sm">{s}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <a href={app.url} target="_blank" rel="noopener noreferrer"
-                              className="flex items-center gap-1.5 text-sm text-primary hover:underline">
-                              <ExternalLink className="w-3.5 h-3.5" /> View Job
-                            </a>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
+                      )}
+                    </div>
                   ))}
-                  {(grouped[status] ?? []).length === 0 && (
-                    <div className="text-sm text-muted-foreground px-1">Empty</div>
+                  {items.length === 0 && (
+                    <div className="rounded-xl border-2 border-dashed border-slate-100 py-6 text-center">
+                      <p className="text-xs text-slate-300">Empty</p>
+                    </div>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </TabsContent>
 
-      {/* ── Table ── */}
+      {/* Table */}
       <TabsContent value="table">
-        <div className="space-y-3">
-          {loading ? (
-            <p className="text-muted-foreground">Loading...</p>
-          ) : apps.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="py-12 text-center text-muted-foreground">
-                No applications yet. Evaluate a job to get started.
-              </CardContent>
-            </Card>
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          {apps.length === 0 ? (
+            <div className="py-16 text-center"><p className="text-slate-400">No applications yet.</p></div>
           ) : (
-            apps.map((app) => (
-              <Card key={app.id} className="hover:shadow-sm transition-shadow">
-                <CardContent className="py-4 px-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-base truncate">{app.title ?? "Untitled"}</span>
-                        {app.grade && <Badge variant="outline" className="text-sm">{app.grade} · {app.score}/10</Badge>}
-                      </div>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5" />{app.company}</span>
-                        {app.location && <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" />{app.location}</span>}
-                        {app.archetype && <span className="text-purple-500 font-medium">{app.archetype}</span>}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50">
+                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-5 py-3.5">Role</th>
+                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-5 py-3.5">Company</th>
+                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-5 py-3.5">Score</th>
+                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-5 py-3.5">Status</th>
+                  <th className="px-5 py-3.5" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {apps.map(app => (
+                  <tr key={app.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-5 py-4">
+                      <p className="font-semibold text-sm text-slate-900">{app.title ?? "Untitled"}</p>
+                      {app.archetype && <p className="text-xs text-indigo-400 mt-0.5">{app.archetype}</p>}
+                    </td>
+                    <td className="px-5 py-4">
+                      <p className="text-sm text-slate-600 flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5 text-slate-300" />{app.company}</p>
+                      {app.location && <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" />{app.location}</p>}
+                    </td>
+                    <td className="px-5 py-4">
+                      {app.grade
+                        ? <span className="inline-flex items-center text-sm font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">{app.grade} · {app.score}/10</span>
+                        : <span className="text-xs text-slate-300">—</span>}
+                    </td>
+                    <td className="px-5 py-4">
                       <Select value={app.status} onValueChange={(v) => v && updateStatus(app.id, v as ApplicationStatus)}>
-                        <SelectTrigger className="h-9 text-sm w-36">
+                        <SelectTrigger className="h-9 w-36 text-sm rounded-xl border-slate-200">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {STATUSES.map((s) => (
-                            <SelectItem key={s} value={s} className="text-sm">{s}</SelectItem>
-                          ))}
+                          {STATUSES.map(s => <SelectItem key={s} value={s} className="text-sm">{s}</SelectItem>)}
                         </SelectContent>
                       </Select>
+                    </td>
+                    <td className="px-5 py-4">
                       <a href={app.url} target="_blank" rel="noopener noreferrer"
-                        className="p-2 rounded hover:bg-muted transition-colors">
-                        <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                        className="p-2 rounded-lg hover:bg-slate-100 text-slate-300 hover:text-slate-500 transition-colors inline-flex">
+                        <ExternalLink className="w-4 h-4" />
                       </a>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       </TabsContent>
