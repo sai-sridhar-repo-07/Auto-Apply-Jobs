@@ -12,12 +12,14 @@ import {
   DollarSign,
   Settings,
   Zap,
+  PenLine,
 } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/jobs", label: "Discover Jobs", icon: Search },
   { href: "/applications", label: "Applications", icon: Briefcase },
+  { href: "/apply", label: "Apply Assist", icon: PenLine },
   { href: "/followup", label: "Follow-ups", icon: MessageSquare },
   { href: "/interview", label: "Interview Prep", icon: FileText },
   { href: "/negotiate", label: "Negotiations", icon: DollarSign },
