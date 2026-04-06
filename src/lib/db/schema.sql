@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS followups (
 -- ─── Interview Sessions ────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS interview_sessions (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
-  application_id  INTEGER NOT NULL REFERENCES applications(id) ON DELETE CASCADE,
+  application_id  INTEGER REFERENCES applications(id) ON DELETE CASCADE,
   session_type    TEXT NOT NULL DEFAULT 'mock'
                   CHECK(session_type IN ('mock','prep','debrief')),
   round           TEXT,          -- phone screen, technical, behavioral, final
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS interview_sessions (
 -- ─── Offers ───────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS offers (
   id                INTEGER PRIMARY KEY AUTOINCREMENT,
-  application_id    INTEGER NOT NULL REFERENCES applications(id) ON DELETE CASCADE,
+  application_id    INTEGER REFERENCES applications(id) ON DELETE CASCADE,
   base_salary       REAL,
   bonus             REAL,
   equity            TEXT,         -- free-form (e.g. "0.5% over 4 years")
