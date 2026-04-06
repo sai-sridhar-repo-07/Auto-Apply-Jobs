@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Sparkles, Copy, Check, FileText, AlertCircle, Loader2, ExternalLink, Zap } from "lucide-react";
+import { Sparkles, Copy, Check, FileText, AlertCircle, Loader2, ExternalLink, Zap, ScrollText } from "lucide-react";
 import type { FieldAnswer } from "@/lib/ai/apply";
 
 const confidenceConfig = {
@@ -50,7 +50,13 @@ export function ApplyContent() {
   const [clLoading, setClLoading] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
 
-  const [activeTab, setActiveTab] = useState<"assist" | "coverletter">("assist");
+  const [rvCompany, setRvCompany] = useState("");
+  const [rvRole, setRvRole] = useState("");
+  const [rvDesc, setRvDesc] = useState("");
+  const [rvLoading, setRvLoading] = useState(false);
+  const [resume, setResume] = useState("");
+
+  const [activeTab, setActiveTab] = useState<"assist" | "coverletter" | "resume">("assist");
 
   const analyze = async () => {
     if (!url) { toast.error("Job application URL is required"); return; }
@@ -90,14 +96,28 @@ export function ApplyContent() {
   const getAnswer = (fieldId: string, original: string) =>
     editedAnswers[fieldId] !== undefined ? editedAnswers[fieldId] : original;
 
+  const generateResume = async () => {
+    if (!rvCompany || !rvRole) { toast.error("Company and role are required"); return; }
+    setRvLoading(true);
+    try {
+      const res = await fetch("/api/apply", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company: rvCompany, role: rvRole, job_description: rvDesc }),
+      });
+      const d = await res.json();
+      if (d.success) { setResume(d.data.resume); toast.success("Tailored resume generated"); }
+      else toast.error(d.error ?? "Failed");
+    } finally { setRvLoading(false); }
+  };
+
   return (
     <div className="space-y-6">
       {/* Tab Bar */}
       <div className="flex gap-1 bg-slate-100 rounded-xl p-1 w-fit">
-        {(["assist", "coverletter"] as const).map((t) => (
+        {(["assist", "coverletter", "resume"] as const).map((t) => (
           <button key={t} onClick={() => setActiveTab(t)}
             className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all ${activeTab === t ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
-            {t === "assist" ? "Form Assist" : "Cover Letter"}
+            {t === "assist" ? "Form Assist" : t === "coverletter" ? "Cover Letter" : "Resume"}
           </button>
         ))}
       </div>
@@ -295,6 +315,91 @@ export function ApplyContent() {
               <div className="px-6 py-4">
                 <Textarea value={coverLetter} onChange={(e) => setCoverLetter(e.target.value)}
                   className="min-h-72 text-sm leading-relaxed font-mono rounded-xl border-slate-200 bg-slate-50 resize-y" />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "resume" && (
+        <div className="space-y-5">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <ScrollText className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-slate-900">Tailored Resume</h2>
+                <p className="text-sm text-slate-500 mt-0.5">AI rewrites and reorders your resume to match this specific job</p>
+              </div>
+            </div>
+
+            {/* What it does */}
+            <div className="bg-emerald-50 rounded-xl border border-emerald-100 px-5 py-3 space-y-1">
+              <p className="text-sm font-semibold text-emerald-800">What the AI does:</p>
+              <ul className="space-y-1">
+                {[
+                  "Reorders experience bullets to put the most relevant ones first",
+                  "Rewrites your summary to speak directly to this role",
+                  "Mirrors the job's keywords naturally (no stuffing)",
+                  "Groups and prioritizes skills by what this job needs most",
+                  "Explains exactly what it changed and why",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-2 text-sm text-emerald-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />{t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-600">Company *</label>
+                <Input placeholder="Stripe" value={rvCompany} onChange={(e) => setRvCompany(e.target.value)}
+                  className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-600">Role *</label>
+                <Input placeholder="Senior ML Engineer" value={rvRole} onChange={(e) => setRvRole(e.target.value)}
+                  className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white" />
+              </div>
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-sm font-medium text-slate-600">
+                  Job description * <span className="text-slate-400 font-normal">(paste for best results)</span>
+                </label>
+                <Textarea placeholder="Paste the full job description here..."
+                  className="min-h-32 text-sm rounded-xl border-slate-200 bg-slate-50 focus:bg-white resize-none"
+                  value={rvDesc} onChange={(e) => setRvDesc(e.target.value)} />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button onClick={generateResume} disabled={rvLoading}
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-colors">
+                {rvLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                {rvLoading ? "Tailoring resume..." : "Generate Tailored Resume"}
+              </button>
+              <p className="text-xs text-slate-400">Reads your profile.yml + cv.md to build the output</p>
+            </div>
+          </div>
+
+          {resume && (
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50">
+                <div>
+                  <h3 className="font-semibold text-slate-900">Tailored Resume</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Markdown format — paste into your editor or Google Docs</p>
+                </div>
+                <CopyButton text={resume} />
+              </div>
+              <div className="px-6 py-4">
+                <Textarea value={resume} onChange={(e) => setResume(e.target.value)}
+                  className="min-h-[480px] text-sm leading-relaxed font-mono rounded-xl border-slate-200 bg-slate-50 resize-y" />
+              </div>
+              <div className="px-6 pb-5">
+                <p className="text-xs text-slate-400">
+                  Tip: paste the markdown into <strong>Notion</strong>, <strong>Google Docs</strong>, or a markdown-to-PDF tool like <strong>resumemaker.online</strong> to get a formatted PDF.
+                </p>
               </div>
             </div>
           )}

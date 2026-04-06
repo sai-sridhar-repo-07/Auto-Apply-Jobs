@@ -126,6 +126,63 @@ Return raw JSON only — no markdown fences.`;
   });
 }
 
+export async function generateTailoredResume(
+  company: string,
+  role: string,
+  jobDescription: string
+): Promise<string> {
+  const profile = getProfile();
+  const cv = loadCv();
+
+  const system = `You are an expert resume writer. You tailor resumes to specific job descriptions without inventing experience.
+Rules:
+- Only use information from the candidate's profile and CV. Never add credentials they don't have.
+- Reorder and rewrite bullet points to prioritize what the job cares about most.
+- Mirror the job's keywords naturally — don't keyword-stuff.
+- Keep it to one page worth of content (under 600 words in the body).
+- Use clean markdown: ## for sections, **bold** for company/role names, - for bullets.
+- Quantify everything that can be quantified from the provided proof points.`;
+
+  const prompt = `Tailor this candidate's resume for the specific job below.
+
+CANDIDATE PROFILE:
+- Name: ${profile.name}
+- Email: ${profile.email}
+- Phone: ${profile.phone ?? ""}
+- Location: ${profile.location}
+- LinkedIn: ${profile.linkedin ?? ""}
+- GitHub: ${profile.github ?? ""}
+- Website: ${profile.website ?? ""}
+- Headline: ${profile.headline}
+- Summary: ${profile.summary}
+- Target roles: ${profile.target_roles.join(", ")}
+- Proof points: ${profile.proof_points.join("; ")}
+- Superpowers: ${profile.superpowers.join("; ")}
+- Comp range: ${profile.currency} ${profile.comp_min.toLocaleString()}–${profile.comp_max.toLocaleString()}
+
+${cv ? `EXISTING RESUME / CV:\n${cv}` : ""}
+
+TARGET JOB:
+Company: ${company}
+Role: ${role}
+${jobDescription ? `\nJob Description:\n${jobDescription.slice(0, 1200)}` : ""}
+
+Generate a complete, tailored resume in markdown. Structure:
+1. Name + contact line (email · phone · linkedin · github)
+2. One-line tailored headline
+3. ## Summary (3 sentences, written for THIS role)
+4. ## Skills (grouped, prioritized by what this job needs)
+5. ## Experience (reordered/rewritten bullets to match job requirements)
+6. ## Projects (if relevant)
+7. ## Education
+
+At the very end, add a section:
+## What was changed
+- 3-5 bullet points explaining exactly what you tailored and why (so the candidate understands the strategy)`;
+
+  return ask(system, prompt, 2048);
+}
+
 export async function generateCoverLetter(
   company: string,
   role: string,

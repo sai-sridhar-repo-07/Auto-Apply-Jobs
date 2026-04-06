@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { scrapeApplicationForm } from "@/lib/scraper/form";
-import { generateFieldAnswers, generateCoverLetter } from "@/lib/ai/apply";
+import { generateFieldAnswers, generateCoverLetter, generateTailoredResume } from "@/lib/ai/apply";
 import { z } from "zod";
 
 const schema = z.object({
@@ -51,7 +51,21 @@ export async function POST(req: Request) {
   }
 }
 
-// Separate endpoint for standalone cover letter generation
+// Tailored resume generation
+export async function PATCH(req: Request) {
+  try {
+    const { company, role, job_description } = await req.json();
+    if (!company || !role) {
+      return NextResponse.json({ success: false, error: "company and role required" }, { status: 400 });
+    }
+    const resume = await generateTailoredResume(company, role, job_description ?? "");
+    return NextResponse.json({ success: true, data: { resume } });
+  } catch (err) {
+    return NextResponse.json({ success: false, error: String(err) }, { status: 500 });
+  }
+}
+
+// Standalone cover letter generation
 export async function PUT(req: Request) {
   try {
     const { company, role, job_description } = await req.json();
