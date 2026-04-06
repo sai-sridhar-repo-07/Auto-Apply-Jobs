@@ -30,16 +30,16 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 shrink-0 border-r border-border bg-card flex flex-col">
+    <aside className="w-64 shrink-0 border-r border-border bg-card flex flex-col">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-border">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-            <Zap className="w-4 h-4 text-primary-foreground" />
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <Zap className="w-4.5 h-4.5 text-primary-foreground" />
           </div>
-          <span className="font-semibold text-sm tracking-tight">AutoApply</span>
+          <span className="font-bold text-base tracking-tight">AutoApply</span>
         </div>
-        <p className="text-[11px] text-muted-foreground mt-1 leading-tight">
+        <p className="text-xs text-muted-foreground mt-1.5 leading-tight">
           AI-powered job applications
         </p>
       </div>
@@ -53,13 +53,13 @@ export function Sidebar() {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
                 active
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
             >
-              <Icon className="w-4 h-4 shrink-0" />
+              <Icon className="w-4.5 h-4.5 shrink-0" />
               {label}
             </Link>
           );
@@ -68,9 +68,9 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="px-5 py-3 border-t border-border">
-        <p className="text-[10px] text-muted-foreground">
-          Configure your profile in{" "}
-          <code className="font-mono bg-muted px-1 py-0.5 rounded text-[10px]">
+        <p className="text-xs text-muted-foreground">
+          Configure in{" "}
+          <code className="font-mono bg-muted px-1 py-0.5 rounded text-xs">
             config/profile.yml
           </code>
         </p>

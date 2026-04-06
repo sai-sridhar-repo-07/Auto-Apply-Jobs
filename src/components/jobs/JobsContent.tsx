@@ -106,7 +106,7 @@ export function JobsContent() {
 
   return (
     <Tabs defaultValue="list">
-      <TabsList className="mb-4">
+      <TabsList className="mb-5">
         <TabsTrigger value="list">Job List ({jobs.length})</TabsTrigger>
         <TabsTrigger value="add">Add Job</TabsTrigger>
       </TabsList>
@@ -114,11 +114,11 @@ export function JobsContent() {
       {/* ── Job List ── */}
       <TabsContent value="list">
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         ) : jobs.length === 0 ? (
           <Card className="border-dashed">
-            <CardContent className="py-10 text-center">
-              <p className="text-sm text-muted-foreground">No jobs yet. Add your first job above.</p>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground">No jobs yet. Add your first job above.</p>
             </CardContent>
           </Card>
         ) : (
@@ -129,47 +129,47 @@ export function JobsContent() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-medium text-sm truncate">{job.title ?? "Untitled"}</h3>
+                        <h3 className="font-semibold text-base truncate">{job.title ?? "Untitled"}</h3>
                         {job.grade && (
-                          <Badge variant="outline" className="text-xs font-bold">
+                          <Badge variant="outline" className="text-sm font-bold">
                             {job.grade} · {job.score}/10
                           </Badge>
                         )}
                         {job.status && (
-                          <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${statusColors[job.status] ?? "bg-muted text-muted-foreground"}`}>
+                          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusColors[job.status] ?? "bg-muted text-muted-foreground"}`}>
                             {job.status}
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
+                      <div className="flex items-center gap-4 mt-1.5 text-sm text-muted-foreground flex-wrap">
                         {job.company && (
-                          <span className="flex items-center gap-1"><Building2 className="w-3 h-3" />{job.company}</span>
+                          <span className="flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5" />{job.company}</span>
                         )}
                         {job.location && (
-                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{job.location}</span>
+                          <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" />{job.location}</span>
                         )}
                         {job.remote && job.remote !== "unknown" && (
-                          <span className="flex items-center gap-1"><Wifi className="w-3 h-3" />{job.remote}</span>
+                          <span className="flex items-center gap-1.5"><Wifi className="w-3.5 h-3.5" />{job.remote}</span>
                         )}
                         {job.archetype && (
-                          <span className="text-purple-500">{job.archetype}</span>
+                          <span className="text-purple-500 font-medium">{job.archetype}</span>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <a href={job.url} target="_blank" rel="noopener noreferrer"
-                        className="p-1.5 rounded hover:bg-muted transition-colors">
-                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
+                        className="p-2 rounded hover:bg-muted transition-colors">
+                        <ExternalLink className="w-4 h-4 text-muted-foreground" />
                       </a>
                       {!job.grade && (
                         <Button
                           size="sm"
                           variant="outline"
-                          className="text-xs h-7 gap-1"
+                          className="gap-1.5 text-sm"
                           onClick={() => evaluate(job)}
                           disabled={evaluating === job.id}
                         >
-                          <Sparkles className="w-3 h-3" />
+                          <Sparkles className="w-4 h-4" />
                           {evaluating === job.id ? "Evaluating..." : "Evaluate"}
                         </Button>
                       )}
@@ -186,39 +186,39 @@ export function JobsContent() {
       <TabsContent value="add">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Add a Job</CardTitle>
+            <CardTitle className="text-base">Add a Job</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Job URL *</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Job URL *</label>
                 <Input placeholder="https://jobs.lever.co/company/..." value={addUrl} onChange={(e) => setAddUrl(e.target.value)} />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Job Title</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Job Title</label>
                 <Input placeholder="Senior Software Engineer" value={addTitle} onChange={(e) => setAddTitle(e.target.value)} />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Company</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Company</label>
                 <Input placeholder="Acme Corp" value={addCompany} onChange={(e) => setAddCompany(e.target.value)} />
               </div>
               <div className="col-span-2">
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">
-                  Job Description <span className="text-muted-foreground">(paste for AI evaluation)</span>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
+                  Job Description <span className="text-muted-foreground font-normal">(paste for AI evaluation)</span>
                 </label>
                 <Textarea
                   placeholder="Paste the full job description here..."
-                  className="min-h-32 text-sm"
+                  className="min-h-36 text-sm"
                   value={addDesc}
                   onChange={(e) => setAddDesc(e.target.value)}
                 />
               </div>
             </div>
-            <Button onClick={addJob} disabled={adding} className="gap-1.5">
+            <Button onClick={addJob} disabled={adding} className="gap-2">
               <Plus className="w-4 h-4" />
               {adding ? "Adding..." : "Add Job"}
             </Button>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               After adding, click <strong>Evaluate</strong> to run the 6-block AI analysis against your profile.
             </p>
           </CardContent>

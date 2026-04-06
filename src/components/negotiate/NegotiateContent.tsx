@@ -7,10 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Sparkles, TrendingUp, DollarSign, ChevronDown, ChevronUp } from "lucide-react";
+import { Sparkles, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 
 interface OfferRow {
   id: number;
@@ -53,9 +52,7 @@ export function NegotiateContent() {
   const [offers, setOffers] = useState<OfferRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<number | null>(null);
-  const [adding, setAdding] = useState(false);
 
-  // Form state
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
   const [base, setBase] = useState("");
@@ -95,7 +92,6 @@ export function NegotiateContent() {
       if (d.success) {
         toast.success("Offer logged + negotiation scripts generated");
         setCompany(""); setRole(""); setBase(""); setBonus(""); setEquity(""); setDeadline("");
-        setAdding(false);
         load();
       } else {
         toast.error(d.error ?? "Failed to log offer");
@@ -112,27 +108,27 @@ export function NegotiateContent() {
       body: JSON.stringify({ id, decision }),
     });
     if ((await res.json()).success) {
-      toast.success(`Decision updated to ${decision}`);
+      toast.success(`Decision: ${decision}`);
       setOffers((prev) => prev.map((o) => o.id === id ? { ...o, decision } : o));
     }
   };
 
   return (
     <Tabs defaultValue="offers">
-      <TabsList className="mb-4">
+      <TabsList className="mb-5">
         <TabsTrigger value="offers">Offers ({offers.length})</TabsTrigger>
         <TabsTrigger value="add">Log Offer</TabsTrigger>
       </TabsList>
 
-      {/* ── Offers list ── */}
+      {/* ── Offers ── */}
       <TabsContent value="offers">
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         ) : offers.length === 0 ? (
           <Card className="border-dashed">
-            <CardContent className="py-10 text-center">
-              <p className="text-sm text-muted-foreground">No offers logged yet.</p>
-              <p className="text-xs text-muted-foreground mt-1">Switch to the <strong>Log Offer</strong> tab to add one.</p>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground">No offers logged yet.</p>
+              <p className="text-sm text-muted-foreground mt-1">Switch to the <strong>Log Offer</strong> tab to add one.</p>
             </CardContent>
           </Card>
         ) : (
@@ -141,15 +137,14 @@ export function NegotiateContent() {
               const pos = marketPosition(offer.base_salary, offer.market_p25, offer.market_p75);
               return (
                 <Card key={offer.id}>
-                  <CardContent className="py-4 px-5">
-                    {/* Header */}
+                  <CardContent className="py-5 px-5">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <h3 className="font-medium text-sm">{offer.title ?? "Role"}</h3>
-                        <p className="text-xs text-muted-foreground">{offer.company}</p>
+                        <h3 className="font-semibold text-base">{offer.title ?? "Role"}</h3>
+                        <p className="text-sm text-muted-foreground mt-0.5">{offer.company}</p>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${decisionColors[offer.decision] ?? ""}`}>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className={`text-sm px-3 py-1 rounded-full font-medium ${decisionColors[offer.decision] ?? ""}`}>
                           {offer.decision}
                         </span>
                         <button onClick={() => setExpanded(expanded === offer.id ? null : offer.id)}>
@@ -160,60 +155,60 @@ export function NegotiateContent() {
                       </div>
                     </div>
 
-                    {/* Comp Summary */}
-                    <div className="mt-3 grid grid-cols-3 gap-3 text-center">
+                    {/* Comp summary */}
+                    <div className="mt-4 grid grid-cols-3 gap-3 text-center">
                       {[
                         { label: "Base", value: offer.base_salary ? fmt(offer.base_salary, offer.currency) : "—" },
                         { label: "Bonus", value: offer.bonus ? fmt(offer.bonus, offer.currency) : "—" },
                         { label: "Equity", value: offer.equity ?? "—" },
                       ].map(({ label, value }) => (
-                        <div key={label} className="bg-muted rounded-md p-2">
-                          <p className="text-[10px] text-muted-foreground font-medium">{label}</p>
-                          <p className="text-sm font-semibold mt-0.5">{value}</p>
+                        <div key={label} className="bg-muted rounded-lg p-3">
+                          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
+                          <p className="text-base font-bold mt-1">{value}</p>
                         </div>
                       ))}
                     </div>
 
-                    {/* Market position bar */}
+                    {/* Market bar */}
                     {offer.market_p25 && offer.market_p75 && (
-                      <div className="mt-3 space-y-1">
-                        <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                      <div className="mt-4 space-y-1.5">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>P25 {fmt(offer.market_p25, offer.currency)}</span>
-                          <span className="font-medium text-foreground">Market position: {Math.round(pos)}th pct</span>
+                          <span className="font-semibold text-foreground text-sm">Market position: {Math.round(pos)}th percentile</span>
                           <span>P75 {fmt(offer.market_p75, offer.currency)}</span>
                         </div>
-                        <Progress value={pos} className="h-1.5" />
+                        <Progress value={pos} className="h-2" />
                       </div>
                     )}
 
-                    {/* Expanded: scripts */}
+                    {/* Scripts */}
                     {expanded === offer.id && (
-                      <div className="mt-4 pt-4 border-t border-border space-y-4">
+                      <div className="mt-5 pt-5 border-t border-border space-y-5">
                         {offer.counter_script && (
                           <div>
-                            <p className="text-xs font-semibold mb-1.5">Counter-offer script</p>
-                            <div className="bg-muted rounded-md p-3 text-xs leading-relaxed whitespace-pre-wrap font-mono">
+                            <p className="text-sm font-semibold mb-2">Counter-offer script</p>
+                            <div className="bg-muted rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap font-mono">
                               {offer.counter_script}
                             </div>
                           </div>
                         )}
                         {offer.competing_script && (
                           <div>
-                            <p className="text-xs font-semibold mb-1.5">Competing offer leverage script</p>
-                            <div className="bg-muted rounded-md p-3 text-xs leading-relaxed whitespace-pre-wrap font-mono">
+                            <p className="text-sm font-semibold mb-2">Competing offer leverage script</p>
+                            <div className="bg-muted rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap font-mono">
                               {offer.competing_script}
                             </div>
                           </div>
                         )}
                         <div>
-                          <p className="text-xs font-medium mb-1.5">Update decision</p>
+                          <p className="text-sm font-medium mb-2">Update decision</p>
                           <Select value={offer.decision} onValueChange={(v) => v && updateDecision(offer.id, v)}>
-                            <SelectTrigger className="w-40 h-7 text-xs">
+                            <SelectTrigger className="w-44 text-sm">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               {["pending", "negotiating", "accepted", "declined"].map((d) => (
-                                <SelectItem key={d} value={d} className="text-xs">{d}</SelectItem>
+                                <SelectItem key={d} value={d} className="text-sm">{d}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -232,51 +227,51 @@ export function NegotiateContent() {
       <TabsContent value="add">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Log a New Offer</CardTitle>
+            <CardTitle className="text-base">Log a New Offer</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Company *</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Company *</label>
                 <Input placeholder="Stripe" value={company} onChange={(e) => setCompany(e.target.value)} />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Role *</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Role *</label>
                 <Input placeholder="Senior Engineer" value={role} onChange={(e) => setRole(e.target.value)} />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Base Salary *</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Base Salary *</label>
                 <Input type="number" placeholder="180000" value={base} onChange={(e) => setBase(e.target.value)} />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Bonus</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Bonus</label>
                 <Input type="number" placeholder="20000" value={bonus} onChange={(e) => setBonus(e.target.value)} />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Equity</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Equity</label>
                 <Input placeholder="0.25% over 4 years" value={equity} onChange={(e) => setEquity(e.target.value)} />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Currency</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Currency</label>
                 <Select value={currency} onValueChange={(v) => v && setCurrency(v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {["USD", "EUR", "GBP", "CAD", "AUD", "SGD", "INR"].map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                      <SelectItem key={c} value={c} className="text-sm">{c}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Decision Deadline</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Decision Deadline</label>
                 <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
               </div>
             </div>
-            <Button onClick={submitOffer} disabled={submitting} className="gap-1.5">
-              <Sparkles className="w-4 h-4" />
+            <Button onClick={submitOffer} disabled={submitting} className="gap-2">
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
               {submitting ? "Generating scripts..." : "Log Offer + Generate Scripts"}
             </Button>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               AI will generate a counter-offer script and a competing-offer leverage script based on market data.
             </p>
           </CardContent>

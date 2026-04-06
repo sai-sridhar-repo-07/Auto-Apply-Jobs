@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Search, Briefcase, MessageSquare, FileText, DollarSign,
   XCircle, Bell, TrendingUp
@@ -31,7 +30,7 @@ export function DashboardContent() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="text-muted-foreground text-sm">Loading...</div>;
+  if (loading) return <p className="text-muted-foreground">Loading...</p>;
 
   return (
     <div className="space-y-6">
@@ -39,14 +38,14 @@ export function DashboardContent() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statCards.map(({ key, label, icon: Icon, color }) => (
           <Card key={key}>
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                <Icon className={`w-3.5 h-3.5 ${color}`} />
+            <CardHeader className="pb-2 pt-5 px-5">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Icon className={`w-4 h-4 ${color}`} />
                 {label}
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <span className="text-2xl font-bold">
+            <CardContent className="px-5 pb-5">
+              <span className="text-4xl font-bold">
                 {stats ? String(stats[key as keyof DashboardStats]) : "—"}
               </span>
             </CardContent>
@@ -57,34 +56,34 @@ export function DashboardContent() {
       {/* Quick actions */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-semibold">Quick Actions</CardTitle>
+          <CardTitle className="text-base font-semibold">Quick Actions</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          <a href="/jobs" className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-            <Search className="w-3 h-3" /> Discover Jobs
+        <CardContent className="flex flex-wrap gap-3">
+          <a href="/jobs" className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium">
+            <Search className="w-4 h-4" /> Discover Jobs
           </a>
-          <a href="/applications" className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors">
-            <Briefcase className="w-3 h-3" /> View Pipeline
+          <a href="/applications" className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors font-medium">
+            <Briefcase className="w-4 h-4" /> View Pipeline
           </a>
-          <a href="/followup" className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors">
-            <MessageSquare className="w-3 h-3" /> Check Follow-ups
+          <a href="/followup" className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors font-medium">
+            <MessageSquare className="w-4 h-4" /> Check Follow-ups
           </a>
-          <a href="/negotiate" className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors">
-            <DollarSign className="w-3 h-3" /> Track Offers
+          <a href="/negotiate" className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors font-medium">
+            <DollarSign className="w-4 h-4" /> Track Offers
           </a>
         </CardContent>
       </Card>
 
-      {/* Empty state hint */}
+      {/* Empty state */}
       {stats?.total_jobs === 0 && (
         <Card className="border-dashed">
-          <CardContent className="py-8 text-center space-y-2">
-            <p className="text-sm font-medium">No jobs yet</p>
-            <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+          <CardContent className="py-12 text-center space-y-3">
+            <p className="text-base font-medium">No jobs yet</p>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
               Go to <strong>Discover Jobs</strong> to paste a job URL or scan company portals.
-              Configure your profile in <code className="font-mono bg-muted px-1 rounded">config/profile.yml</code> first.
+              Configure your profile in <code className="font-mono bg-muted px-1.5 rounded">config/profile.yml</code> first.
             </p>
-            <a href="/settings" className="inline-flex mt-2 text-xs text-primary underline underline-offset-2">
+            <a href="/settings" className="inline-flex mt-1 text-sm text-primary underline underline-offset-2">
               Open Settings →
             </a>
           </CardContent>
