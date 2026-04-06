@@ -41,8 +41,17 @@ export const jobQueries = {
   getById: (id: number) =>
     getDb().prepare(`SELECT * FROM jobs WHERE id = ?`).get(id),
 
-  upsert: (job: Partial<{ url: string; title: string; company: string; location: string; remote: string; description: string; source: string; is_active: number }>) =>
-    getDb().prepare(`
+  upsert: (job: Partial<{ url: string; title: string; company: string; location: string; remote: string; description: string; source: string; is_active: number }>) => {
+    const params = {
+      url: job.url ?? null,
+      title: job.title ?? null,
+      company: job.company ?? null,
+      location: job.location ?? null,
+      remote: job.remote ?? 'unknown',
+      description: job.description ?? null,
+      source: job.source ?? null,
+    };
+    return getDb().prepare(`
       INSERT INTO jobs (url, title, company, location, remote, description, source)
       VALUES (@url, @title, @company, @location, @remote, @description, @source)
       ON CONFLICT(url) DO UPDATE SET
@@ -52,7 +61,8 @@ export const jobQueries = {
         remote = excluded.remote,
         description = excluded.description,
         is_active = 1
-    `).run(job),
+    `).run(params);
+  },
 
   count: () => (getDb().prepare(`SELECT COUNT(*) as n FROM jobs`).get() as { n: number }).n,
 }
@@ -63,15 +73,29 @@ export const evalQueries = {
   getByJobId: (job_id: number) =>
     getDb().prepare(`SELECT * FROM evaluations WHERE job_id = ?`).get(job_id),
 
-  insert: (data: Record<string, unknown>) =>
-    getDb().prepare(`
+  insert: (data: Record<string, unknown>) => {
+    const params = {
+      job_id: data.job_id ?? null,
+      archetype: data.archetype ?? null,
+      score: data.score ?? null,
+      grade: data.grade ?? null,
+      summary: data.summary ?? null,
+      gap_analysis: data.gap_analysis ?? null,
+      seniority: data.seniority ?? null,
+      comp_research: data.comp_research ?? null,
+      cv_suggestions: data.cv_suggestions ?? null,
+      interview_prep: data.interview_prep ?? null,
+      full_report: data.full_report ?? null,
+    };
+    return getDb().prepare(`
       INSERT OR REPLACE INTO evaluations
         (job_id, archetype, score, grade, summary, gap_analysis, seniority,
          comp_research, cv_suggestions, interview_prep, full_report)
       VALUES
         (@job_id, @archetype, @score, @grade, @summary, @gap_analysis, @seniority,
          @comp_research, @cv_suggestions, @interview_prep, @full_report)
-    `).run(data),
+    `).run(params);
+  },
 
   avgScore: () => {
     const row = getDb().prepare(`SELECT AVG(score) as avg FROM evaluations`).get() as { avg: number }
