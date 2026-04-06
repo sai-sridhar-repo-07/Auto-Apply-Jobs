@@ -30,11 +30,14 @@ export function getDb(): Database.Database {
 export const jobQueries = {
   getAll: () =>
     getDb().prepare(`
-      SELECT j.*, e.score, e.grade, e.archetype, e.summary,
-             a.status, a.id as application_id
+      SELECT j.*,
+        (SELECT e.score FROM evaluations e WHERE e.job_id = j.id LIMIT 1) as score,
+        (SELECT e.grade FROM evaluations e WHERE e.job_id = j.id LIMIT 1) as grade,
+        (SELECT e.archetype FROM evaluations e WHERE e.job_id = j.id LIMIT 1) as archetype,
+        (SELECT e.summary FROM evaluations e WHERE e.job_id = j.id LIMIT 1) as summary,
+        (SELECT a.status FROM applications a WHERE a.job_id = j.id LIMIT 1) as status,
+        (SELECT a.id FROM applications a WHERE a.job_id = j.id LIMIT 1) as application_id
       FROM jobs j
-      LEFT JOIN evaluations e ON e.job_id = j.id
-      LEFT JOIN applications a ON a.job_id = j.id
       ORDER BY j.discovered_at DESC
     `).all(),
 
@@ -109,10 +112,12 @@ export const appQueries = {
   getAll: () =>
     getDb().prepare(`
       SELECT a.*, j.title, j.company, j.url, j.remote, j.location,
-             e.score, e.grade, e.archetype, e.summary
+        (SELECT e.score FROM evaluations e WHERE e.job_id = a.job_id LIMIT 1) as score,
+        (SELECT e.grade FROM evaluations e WHERE e.job_id = a.job_id LIMIT 1) as grade,
+        (SELECT e.archetype FROM evaluations e WHERE e.job_id = a.job_id LIMIT 1) as archetype,
+        (SELECT e.summary FROM evaluations e WHERE e.job_id = a.job_id LIMIT 1) as summary
       FROM applications a
       JOIN jobs j ON j.id = a.job_id
-      LEFT JOIN evaluations e ON e.job_id = a.job_id
       ORDER BY a.updated_at DESC
     `).all(),
 
