@@ -53,7 +53,16 @@ export async function POST(req: Request) {
     ]);
 
     const result = offerQueries.create({
-      ...data,
+      application_id: data.application_id ?? null,
+      base_salary: data.base_salary,
+      bonus: data.bonus ?? null,
+      equity: data.equity ?? null,
+      equity_value: data.equity_value ?? null,
+      benefits: data.benefits ?? null,
+      total_comp: data.total_comp ?? null,
+      currency: data.currency,
+      deadline_at: data.deadline_at ?? null,
+      notes: data.notes ?? null,
       market_p25: market.p25,
       market_p50: market.p50,
       market_p75: market.p75,
