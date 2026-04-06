@@ -19,15 +19,55 @@
 
 ---
 
+## AI Provider — Anthropic or OpenRouter (free)
+
+You need **one** of these. Pick based on your preference:
+
+### Option A — Anthropic (recommended quality)
+
+| | |
+|---|---|
+| Sign up | [console.anthropic.com](https://console.anthropic.com) |
+| Free credit | **$5 on sign-up** (~1,500 evaluations) |
+| Cost per eval | ~$0.003 (less than a cent) |
+| Quality | Excellent — Claude handles complex JSON reliably |
+
+### Option B — OpenRouter (100% free tier)
+
+| | |
+|---|---|
+| Sign up | [openrouter.ai](https://openrouter.ai) |
+| Cost | **$0** on free models |
+| Rate limit | 20 requests/min · 200 requests/day |
+| Quality | Good for basic use, weaker on complex structured output |
+
+**Free models available on OpenRouter:**
+
+| Model | Quality | Speed | Best for |
+|---|---|---|---|
+| `meta-llama/llama-3.3-70b-instruct:free` | ★★★★ | Medium | Evaluations, scripts (recommended) |
+| `meta-llama/llama-3.1-8b-instruct:free` | ★★★ | Fast | Quick follow-up drafts |
+| `google/gemma-2-9b-it:free` | ★★★ | Fast | Simple Q&A |
+| `mistralai/mistral-7b-instruct:free` | ★★★ | Fast | Cover letters |
+
+**Limitations of free OpenRouter models:**
+- 200 requests/day hard cap — evaluating 20+ jobs in a day will hit it
+- JSON parsing failures happen occasionally (free models are less instruction-following) — retry if you get a blank result
+- No streaming support on some free models
+- Response quality for the 6-block evaluation is noticeably weaker than Claude
+- Free models can be slow during peak hours (shared infrastructure)
+
+> **Recommendation**: Use OpenRouter free to try the app. Switch to Anthropic ($5 credit) once you want reliable, high-quality output.
+
+---
+
 ## Prerequisites
 
 | Tool | Version | Install |
 |---|---|---|
 | **Node.js** | 18+ | [nodejs.org](https://nodejs.org) |
 | **Git** | any | [git-scm.com](https://git-scm.com) |
-| **Anthropic API Key** | — | [console.anthropic.com](https://console.anthropic.com) |
-
-> **Cost**: Anthropic gives **$5 free credit** on sign-up. One full job evaluation costs ~$0.003 (less than a cent). $5 covers ~1,500 evaluations.
+| **AI API Key** | — | Anthropic or OpenRouter (see above) |
 
 ---
 
@@ -52,19 +92,28 @@ npm install
 npx playwright install chromium
 ```
 
-### 4. Add your Anthropic API key
+### 4. Configure your AI provider
 
 ```bash
 cp .env.local.example .env.local
 ```
 
-Open `.env.local` and replace `REPLACE_WITH_YOUR_KEY` with your actual key:
+Open `.env.local` and choose **one** of these:
 
-```
+**Option A — Anthropic** (recommended)
+```env
+AI_PROVIDER=anthropic
 ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
 ```
+Get key: [console.anthropic.com](https://console.anthropic.com) → API Keys → Create Key
 
-Get your key at [console.anthropic.com](https://console.anthropic.com) → API Keys → Create Key.
+**Option B — OpenRouter** (free tier)
+```env
+AI_PROVIDER=openrouter
+OPENROUTER_API_KEY=sk-or-v1-your-key-here
+OPENROUTER_MODEL=meta-llama/llama-3.3-70b-instruct:free
+```
+Get key: [openrouter.ai](https://openrouter.ai) → Sign in → Keys → Create Key
 
 ### 5. Set up your profile
 
@@ -150,7 +199,7 @@ autoapply/
 - **TypeScript** — end-to-end type safety
 - **Tailwind CSS + shadcn/ui** — component library
 - **SQLite (better-sqlite3)** — local database, zero setup, lives in `data/`
-- **Anthropic SDK** — Claude claude-sonnet-4-6 for all AI features
+- **Anthropic SDK / OpenAI SDK** — pluggable AI provider (Claude or OpenRouter)
 - **Playwright** — headless browser for form field extraction
 
 ---
@@ -159,15 +208,21 @@ autoapply/
 
 - All your data stays **100% on your machine** — the SQLite database lives in `data/autoapply.db`
 - Your `profile.yml` and `.env.local` are git-ignored and never committed or pushed
-- The only external calls are to the Anthropic API (your key, your usage)
+- The only external calls are to Anthropic or OpenRouter (your key, your usage)
 - No accounts, no cloud sync, no telemetry
 
 ---
 
 ## Troubleshooting
 
-**`ANTHROPIC_API_KEY` not found**
-Make sure `.env.local` exists and the key starts with `sk-ant-`.
+**`ANTHROPIC_API_KEY is not set` / `OPENROUTER_API_KEY is not set`**
+Make sure `.env.local` exists and `AI_PROVIDER` matches the key you set.
+
+**OpenRouter: blank or broken JSON results**
+Free models occasionally fail on complex structured output. Just click Evaluate again — it's a one-off retry. If it keeps failing, switch to a stronger free model (`llama-3.3-70b`) or use Anthropic.
+
+**OpenRouter: `429 Too Many Requests`**
+You've hit the 200 req/day or 20 req/min limit on free models. Wait until midnight UTC or switch to a paid model in `.env.local`.
 
 **`Playwright: browser not found`**
 Run `npx playwright install chromium` in the `autoapply/` folder.
