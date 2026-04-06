@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Sparkles, Copy, Check, FileText, AlertCircle, Loader2, ExternalLink, Zap, ScrollText } from "lucide-react";
+import { Sparkles, Copy, Check, FileText, AlertCircle, Loader2, ExternalLink, Zap, ScrollText, Download } from "lucide-react";
 import type { FieldAnswer } from "@/lib/ai/apply";
 
 const confidenceConfig = {
@@ -55,6 +55,7 @@ export function ApplyContent() {
   const [rvDesc, setRvDesc] = useState("");
   const [rvLoading, setRvLoading] = useState(false);
   const [resume, setResume] = useState("");
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"assist" | "coverletter" | "resume">("assist");
 
@@ -108,6 +109,27 @@ export function ApplyContent() {
       if (d.success) { setResume(d.data.resume); toast.success("Tailored resume generated"); }
       else toast.error(d.error ?? "Failed");
     } finally { setRvLoading(false); }
+  };
+
+  const downloadPdf = async () => {
+    if (!resume) return;
+    setPdfLoading(true);
+    try {
+      const filename = `resume-${rvRole}-${rvCompany}`.toLowerCase().replace(/\s+/g, "-");
+      const res = await fetch("/api/resume-pdf", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markdown: resume, filename }),
+      });
+      if (!res.ok) { toast.error("Failed to generate PDF"); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${filename}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("PDF downloaded!");
+    } finally { setPdfLoading(false); }
   };
 
   return (
@@ -388,18 +410,20 @@ export function ApplyContent() {
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50">
                 <div>
                   <h3 className="font-semibold text-slate-900">Tailored Resume</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Markdown format — paste into your editor or Google Docs</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Edit below if needed, then download as PDF</p>
                 </div>
-                <CopyButton text={resume} />
+                <div className="flex items-center gap-2">
+                  <CopyButton text={resume} />
+                  <button onClick={downloadPdf} disabled={pdfLoading}
+                    className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors">
+                    {pdfLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                    {pdfLoading ? "Generating PDF..." : "Download PDF"}
+                  </button>
+                </div>
               </div>
               <div className="px-6 py-4">
                 <Textarea value={resume} onChange={(e) => setResume(e.target.value)}
                   className="min-h-[480px] text-sm leading-relaxed font-mono rounded-xl border-slate-200 bg-slate-50 resize-y" />
-              </div>
-              <div className="px-6 pb-5">
-                <p className="text-xs text-slate-400">
-                  Tip: paste the markdown into <strong>Notion</strong>, <strong>Google Docs</strong>, or a markdown-to-PDF tool like <strong>resumemaker.online</strong> to get a formatted PDF.
-                </p>
               </div>
             </div>
           )}
