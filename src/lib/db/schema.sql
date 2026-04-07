@@ -82,6 +82,8 @@ CREATE TABLE IF NOT EXISTS interview_sessions (
 CREATE TABLE IF NOT EXISTS offers (
   id                INTEGER PRIMARY KEY AUTOINCREMENT,
   application_id    INTEGER REFERENCES applications(id) ON DELETE CASCADE,
+  company           TEXT,
+  role              TEXT,
   base_salary       REAL,
   bonus             REAL,
   equity            TEXT,         -- free-form (e.g. "0.5% over 4 years")

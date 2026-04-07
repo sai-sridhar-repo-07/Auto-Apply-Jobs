@@ -229,10 +229,13 @@ export const interviewQueries = {
 export const offerQueries = {
   getAll: () =>
     getDb().prepare(`
-      SELECT o.*, j.title, j.company, a.status as app_status
+      SELECT o.*,
+        COALESCE(o.company, j.company) as company,
+        COALESCE(o.role, j.title) as title,
+        a.status as app_status
       FROM offers o
-      JOIN applications a ON a.id = o.application_id
-      JOIN jobs j ON j.id = a.job_id
+      LEFT JOIN applications a ON a.id = o.application_id
+      LEFT JOIN jobs j ON j.id = a.job_id
       ORDER BY o.received_at DESC
     `).all(),
 
@@ -242,10 +245,10 @@ export const offerQueries = {
   create: (data: Record<string, unknown>) =>
     getDb().prepare(`
       INSERT INTO offers
-        (application_id, base_salary, bonus, equity, equity_value, benefits,
+        (application_id, company, role, base_salary, bonus, equity, equity_value, benefits,
          total_comp, currency, market_p25, market_p50, market_p75, deadline_at, notes)
       VALUES
-        (@application_id, @base_salary, @bonus, @equity, @equity_value, @benefits,
+        (@application_id, @company, @role, @base_salary, @bonus, @equity, @equity_value, @benefits,
          @total_comp, @currency, @market_p25, @market_p50, @market_p75, @deadline_at, @notes)
     `).run(data),
 

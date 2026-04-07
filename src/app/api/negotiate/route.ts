@@ -54,6 +54,8 @@ export async function POST(req: Request) {
 
     const result = offerQueries.create({
       application_id: data.application_id ?? null,
+      company: data.company,
+      role: data.role,
       base_salary: data.base_salary,
       bonus: data.bonus ?? null,
       equity: data.equity ?? null,
